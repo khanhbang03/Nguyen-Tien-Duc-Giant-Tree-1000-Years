@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Nguyen Tien Duc — Giant Tree 1000 Years</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Trebuchet MS', sans-serif;
+      background: linear-gradient(to bottom, #0a0a1a, #2a2a4a);
+      color: #eee;
+      overflow: hidden;
+    }
+    h1, h2, h3 {
+      text-align: center;
+    }
+    .tree {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 600px;
+      background: linear-gradient(to top, #3b2f1e, #5a4228);
+      border-radius: 100px;
+      box-shadow: 0 0 40px rgba(0,0,0,0.7);
+    }
+    .floor {
+      position: absolute;
+      bottom: 1000px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 400px;
+      height: 200px;
+      background: rgba(255,255,255,0.05);
+      border: 2px solid #ccc;
+      border-radius: 15px;
+      text-align: center;
+      padding: 10px;
+    }
+    .character {
+      margin: 10px;
+    }
+    #status {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(0,0,0,0.6);
+      padding: 10px;
+      border-radius: 8px;
+    }
+    #npc-dialogue {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(20,20,20,0.8);
+      padding: 15px;
+      border-radius: 10px;
+      max-width: 600px;
+      text-align: center;
+    }
+    .leaf {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: green;
+      border-radius: 50%;
+      opacity: 0.7;
+    }
+    #map {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 200px;
+      height: 200px;
+      background: rgba(255,255,255,0.1);
+      border: 2px solid #aaa;
+      border-radius: 10px;
+    }
+    .map-icon {
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      cursor: grab;
+    }
+    .map-icon:active {
+      cursor: grabbing;
+    }
+    .duc { background: gold; }
+    .phuonganh { background: pink; }
+    .dungdung { background: red; }
+  </style>
+</head>
+<body>
+  <h1>Nguyen Tien Duc at the Giant Tree — 1000 Years</h1>
+  <div class="tree"></div>
+  <div class="floor">
+    <h2>Floor 1000 — FPT Smart Cloud</h2>
+    <div class="character">📖 Nguyen Tien Duc is reading the Bible with students</div>
+    <div class="character">💃 Dinh Thi Phuong Anh is dancing under the giant tree</div>
+    <div class="character">😒 Dung Dung watches with jealousy</div>
+  </div>
+  <div id="status">
+    <p>Fruits Collected: <span id="fruits">0</span></p>
+    <p>Jealousy Points: <span id="jealousy">0</span></p>
+    <p>Dung Dung State: <span id="state">Calm</span></p>
+    <button onclick="saveGame()">Save</button>
+    <button onclick="loadGame()">Load</button>
+  </div>
+  <div id="npc-dialogue">Welcome to the 1000-year journey under the Giant Tree. 🌳</div>
+  <div id="map">
+    <div class="map-icon duc" style="top:80px; left:90px;"></div>
+    <div class="map-icon phuonganh" style="top:130px; left:100px;"></div>
+    <div class="map-icon dungdung" style="top:100px; left:50px;"></div>
+  </div>
+  <audio autoplay loop>
+    <source src="https://files.catbox.moe/w6ijcb.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    let fruits = 0;
+    let jealousy = 0;
+    let state = "Calm";
+
+    function dropFruit(){
+      fruits++;
+      document.getElementById('fruits').innerText = fruits;
+      jealousy++;
+      document.getElementById('jealousy').innerText = jealousy;
+      updateState();
+      dialogue(`A fruit drops 🍎! Phuong Anh collects it.`);
+    }
+
+    function updateState(){
+      if (jealousy < 5){
+        state = "Calm";
+      } else if (jealousy < 10){
+        state = "Angry — blaming students";
+      } else if (jealousy < 15){
+        state = "Very Angry";
+      } else {
+        state = "Tired — asleep until next day";
+        jealousy = 0;
+        fruits = 0;
+      }
+      document.getElementById('state').innerText = state;
+    }
+
+    function dialogue(text){
+      document.getElementById('npc-dialogue').innerText = text;
+    }
+
+    function createLeaf(){
+      let leaf = document.createElement('div');
+      leaf.className = 'leaf';
+      leaf.style.left = Math.random()*window.innerWidth + 'px';
+      leaf.style.top = '-20px';
+      document.body.appendChild(leaf);
+      let fall = setInterval(()=>{
+        leaf.style.top = (parseInt(leaf.style.top)+2)+'px';
+        if(parseInt(leaf.style.top)>window.innerHeight){
+          clearInterval(fall);
+          leaf.remove();
+          dropFruit();
+        }
+      },50);
+    }
+
+    setInterval(createLeaf, 3000);
+
+    function saveGame(){
+      localStorage.setItem('fruits', fruits);
+      localStorage.setItem('jealousy', jealousy);
+      localStorage.setItem('state', state);
+      dialogue("Game saved!");
+    }
+    function loadGame(){
+      fruits = parseInt(localStorage.getItem('fruits'))||0;
+      jealousy = parseInt(localStorage.getItem('jealousy'))||0;
+      state = localStorage.getItem('state')||"Calm";
+      document.getElementById('fruits').innerText = fruits;
+      document.getElementById('jealousy').innerText = jealousy;
+      document.getElementById('state').innerText = state;
+      dialogue("Game loaded!");
+    }
+
+    // Drag & Drop for map icons
+    const icons = document.querySelectorAll('.map-icon');
+    icons.forEach(icon => {
+      icon.addEventListener('mousedown', startDrag);
+    });
+
+    let selected = null;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    function startDrag(e){
+      selected = e.target;
+      offsetX = e.clientX - selected.offsetLeft;
+      offsetY = e.clientY - selected.offsetTop;
+      document.addEventListener('mousemove', drag);
+      document.addEventListener('mouseup', stopDrag);
+    }
+
+    function drag(e){
+      if(selected){
+        let map = document.getElementById('map');
+        let rect = map.getBoundingClientRect();
+        let x = e.clientX - rect.left - offsetX;
+        let y = e.clientY - rect.top - offsetY;
+        x = Math.max(0, Math.min(rect.width-15, x));
+        y = Math.max(0, Math.min(rect.height-15, y));
+        selected.style.left = x + 'px';
+        selected.style.top = y + 'px';
+      }
+    }
+
+    function stopDrag(){
+      document.removeEventListener('mousemove', drag);
+      document.removeEventListener('mouseup', stopDrag);
+      selected = null;
+    }
+  </script>
+</body>
+</html>

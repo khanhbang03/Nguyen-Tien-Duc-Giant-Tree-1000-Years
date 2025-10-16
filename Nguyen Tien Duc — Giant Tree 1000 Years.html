@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Nguyen Tien Duc — The Thousand-Year Tree</title>
+  <style>
+    :root{
+      --bg:#081029; --tree:#18411f; --leaf:#2ea34a; --gold:#f6d365; --accent:#7bdff6;
+    }
+    *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,Arial;}
+    html,body{height:100%;margin:0;background:radial-gradient(circle at 10% 10%, #0b1b2b, var(--bg) 40%);color:#e6f0ff}
+    .stage{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+
+    /* Giant tree */
+    .tree-wrap{width:920px;max-width:96%;position:relative}
+    .tree-trunk{background:linear-gradient(180deg,#2b1709,#1d0f06);height:420px;border-radius:60px 60px 20px 20px;position:relative;margin:0 auto;box-shadow:inset -60px -20px 80px rgba(0,0,0,0.45)}
+    .tree-canopy{position:absolute;left:50%;transform:translateX(-50%);top:-260px;width:820px;height:420px;border-radius:50% 50% 20% 20%/60% 60% 40% 40%;background:radial-gradient(circle at 60% 40%, #66d17a, var(--leaf) 40%, #1a7a38 70%);box-shadow:0 20px 80px rgba(0,0,0,0.45)}
+    .floor-badge{position:absolute;left:20px;top:10px;background:rgba(0,0,0,0.35);padding:8px 12px;border-radius:12px;font-weight:600}
+
+    /* cloud and platform */
+    .platform{position:relative;margin-top:-40px;display:flex;align-items:center;justify-content:center}
+    .platform .cloud{width:260px;height:80px;background:linear-gradient(180deg,#eaf6ff14,#eaf6ff06);border-radius:40px;backdrop-filter: blur(6px);display:flex;align-items:center;justify-content:center}
+
+    /* UI panel */
+    .ui{position:fixed;right:24px;top:24px;width:320px;max-width:40vw;background:linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02));padding:18px;border-radius:14px;border:1px solid rgba(255,255,255,0.06);box-shadow:0 6px 24px rgba(2,6,23,0.6)}
+    .ui h2{margin:0 0 8px 0;font-size:18px}
+    .stat{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+    .meter{flex:1;height:12px;background:#072036;border-radius:8px;overflow:hidden}
+    .meter > i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#ffb86b);width:0%}
+    .btn{display:inline-block;padding:8px 12px;border-radius:8px;background:linear-gradient(180deg,#0b2a42,#05314d);border:1px solid rgba(255,255,255,0.04);cursor:pointer;margin-right:8px}
+    .small{font-size:12px;padding:6px 8px}
+
+    /* students / characters */
+    .students{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .student{width:86px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:8px;border-radius:10px;text-align:center;border:1px solid rgba(255,255,255,0.03);cursor:pointer}
+    .student img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.06)}
+    .student h4{margin:6px 0 0 0;font-size:12px}
+
+    /* Dinh Thi Phuong Anh dancing */
+    .dancer{position:absolute;left:50%;transform:translateX(-50%);bottom:-130px;width:160px;text-align:center}
+    .dancer .avatar{width:96px;height:96px;border-radius:50%;background:linear-gradient(180deg,#ffe6f0,#ffd9f6);display:inline-block;margin-bottom:12px;box-shadow:0 8px 30px rgba(0,0,0,0.45)}
+    .dancer .dance{animation:floatDance 3.6s ease-in-out infinite}
+    @keyframes floatDance{0%{transform:translateY(0)}50%{transform:translateY(-18px) rotate(-4deg)}100%{transform:translateY(0)}}
+
+    /* fruit */
+    .fruit{position:absolute;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;cursor:pointer;box-shadow:0 8px 18px rgba(0,0,0,0.35)}
+    .fruit.apple{background:linear-gradient(180deg,#ff5f5f,#ce2b2b)}
+    .log{max-height:160px;overflow:auto;padding:8px;background:rgba(0,0,0,0.18);border-radius:8px;font-size:13px}
+
+    footer{position:fixed;left:24px;bottom:18px;font-size:13px;opacity:0.9}
+
+    /* responsive tweaks */
+    @media (max-width:720px){.ui{position:static;width:calc(100% - 40px);margin:12px auto 0 auto}} 
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="tree-wrap" id="treeWrap">
+      <div class="floor-badge">FPT Smart Cloud — Floor <strong id="floorNo">1000</strong></div>
+      <div class="tree-canopy" aria-hidden></div>
+      <div class="platform">
+        <div class="cloud">A quiet cloud platform for the bible reading circle — 1,000 years begins now</div>
+      </div>
+      <div class="tree-trunk" id="trunk">
+        <!-- fruits will be appended by JS -->
+        <div class="dancer" id="dancer">
+          <div class="avatar dance" title="Dinh Thi Phuong Anh">💃</div>
+          <div style="color:#ffd;">Dinh Thi Phuong Anh — dance for fruit</div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="ui" id="ui">
+      <h2>Nguyen Tien Duc — Reading Circle</h2>
+      <div class="stat"><div style="width:120px">Jealousy</div><div class="meter" title="Dung Dung's jealousy"><i id="jealousMeter"></i></div><div style="width:36px;text-align:right" id="jealousVal">0</div></div>
+      <div class="stat"><div style="width:120px">Fruit Collected</div><div style="width:36px;text-align:right;font-weight:700" id="fruitCount">0</div></div>
+
+      <div style="margin-top:8px">Music & controls</div>
+      <div style="margin:8px 0 12px 0;display:flex;align-items:center;gap:8px">
+        <button class="btn" id="toggleMusic">Play Theme</button>
+        <button class="btn small" id="spawnFruit">Shake Tree</button>
+        <button class="btn small" id="calmDung">Calm Dung</button>
+      </div>
+
+      <div style="margin-top:8px;font-weight:700">Students (click to sit with teacher)</div>
+      <div class="students" id="students"></div>
+
+      <div style="margin-top:10px;font-weight:700">Activity Log</div>
+      <div class="log" id="log"></div>
+
+      <div style="margin-top:10px;display:flex;gap:8px;align-items:center"><button class="btn" id="reset">Reset</button><div style="font-size:12px;color:#c7d9ff66">Auto-save in localStorage</div></div>
+    </aside>
+  </div>
+
+  <footer>Theme idea: Sword Art Online music vibe. Replace the audio source in code with your favorite track (local file or URL).</footer>
+
+  <!-- Audio: replace 'sao_theme.mp3' with a valid file or URL you have rights to -->
+  <audio id="theme" loop crossorigin="anonymous">
+    <source src="sao_theme.mp3" type="audio/mpeg">
+    <!-- fallback: user will need to provide a file -->
+  </audio>
+
+  <script>
+    // --- Initial data ---
+    const studentsData = [
+      {id:'s1',name:'Student A',img:'https://picsum.photos/seed/a/200'},
+      {id:'s2',name:'Student B',img:'https://picsum.photos/seed/b/200'},
+      {id:'s3',name:'Student C',img:'https://picsum.photos/seed/c/200'},
+      {id:'s4',name:'Student D',img:'https://picsum.photos/seed/d/200'},
+      {id:'s5',name:'Student E',img:'https://picsum.photos/seed/e/200'},
+    ];
+
+    // State
+    const state = {
+      jealousy: 0, // 0..100
+      fruits: 0,
+      log: [],
+      musicPlaying: false
+    };
+
+    // DOM handles
+    const studentsEl = document.getElementById('students');
+    const jealousMeter = document.getElementById('jealousMeter');
+    const jealousVal = document.getElementById('jealousVal');
+    const fruitCountEl = document.getElementById('fruitCount');
+    const logEl = document.getElementById('log');
+    const theme = document.getElementById('theme');
+    const toggleMusicBtn = document.getElementById('toggleMusic');
+
+    // Useful helpers
+    function addLog(text){
+      const t = `[${new Date().toLocaleTimeString()}] ${text}`;
+      state.log.unshift(t);
+      if(state.log.length>150) state.log.pop();
+      renderLog();
+    }
+    function renderLog(){
+      logEl.innerHTML = state.log.map(x=>`<div>${x}</div>`).join('');
+    }
+
+    // Render students
+    function renderStudents(){
+      studentsEl.innerHTML = '';
+      studentsData.forEach(s=>{
+        const el = document.createElement('div'); el.className='student'; el.dataset.id=s.id;
+        el.innerHTML = `<img src="${s.img}" alt="${s.name}"><h4>${s.name}</h4>`;
+        el.addEventListener('click',()=>sitWithTeacher(s));
+        studentsEl.appendChild(el);
+      });
+    }
+
+    function sitWithTeacher(student){
+      addLog(`${student.name} sits with Nguyen Tien Duc to read the Bible.`);
+      increaseJealousy(4);
+      // small visual feedback
+      const popup = document.createElement('div');
+      popup.textContent = `${student.name} joins the circle ✨`;
+      popup.style.position='fixed';popup.style.left='50%';popup.style.top='12%';popup.style.transform='translateX(-50%)';
+      popup.style.background='rgba(0,0,0,0.4)';popup.style.padding='10px 14px';popup.style.borderRadius='10px';document.body.appendChild(popup);
+      setTimeout(()=>popup.remove(),1800);
+    }
+
+    // Jealousy logic for Dung Dung
+    function increaseJealousy(amount){
+      state.jealousy = Math.min(120, state.jealousy + amount);
+      checkJealousyState();
+      save(); renderUI();
+    }
+    function decreaseJealousy(amount){
+      state.jealousy = Math.max(0, state.jealousy - amount);
+      checkJealousyState(); save(); renderUI();
+    }
+
+    function checkJealousyState(){
+      // 0-40: calm, 41-80: jealous & blames students, 81+: enraged -> tired -> sleeps
+      if(state.jealousy>80){
+        addLog('Dung Dung becomes extremely angry — she blames students loudly and then grows tired. She sleeps and will wake up tomorrow.');
+        // heavy reaction: reset jealousy to mid value but trigger 'sleep' effect
+        state.jealousy = 10; // she cools after sleep
+        showDungSleep();
+      } else if(state.jealousy>40){
+        addLog('Dung Dung feels jealous and blames the students for spending time with the teacher. Tension rises.');
+        showDungBlame();
+      }
+      save(); renderUI();
+    }
+
+    function showDungBlame(){
+      // short flash on UI
+      const b = document.createElement('div'); b.textContent='Dung Dung: "Why are you all here?"';
+      b.style.position='fixed';b.style.right='24px';b.style.top='84px';b.style.background='rgba(255,80,80,0.12)';b.style.padding='8px 12px';b.style.borderRadius='8px';document.body.appendChild(b);
+      setTimeout(()=>b.remove(),2400);
+    }
+    function showDungSleep(){
+      const b = document.createElement('div'); b.innerHTML='💤 Dung Dung slept to recover... She will wake up tomorrow.';
+      b.style.position='fixed';b.style.right='24px';b.style.top='84px';b.style.background='rgba(10,10,30,0.9)';b.style.padding='8px 12px';b.style.borderRadius='8px';document.body.appendChild(b);
+      setTimeout(()=>b.remove(),2600);
+    }
+
+    // Fruit spawning and collecting
+    const treeWrap = document.getElementById('treeWrap');
+    function spawnFruit(){
+      // randomly place fruits within canopy area
+      const canopy = document.querySelector('.tree-canopy');
+      const rect = canopy.getBoundingClientRect();
+      const wrapRect = treeWrap.getBoundingClientRect();
+      const count = Math.floor(Math.random()*3)+2; // 2..4 fruits
+      for(let i=0;i<count;i++){
+        const f = document.createElement('div'); f.className='fruit apple';
+        const x = Math.random()*(rect.width-60)+20; const y = Math.random()*(rect.height-60)+20;
+        f.style.left = `${x}px`; f.style.top = `${y-120}px`; // adjust to trunk container
+        f.textContent = '🍎';
+        // click handler
+        f.addEventListener('click',()=>collectFruit(f));
+        treeWrap.appendChild(f);
+        // small drop animation
+        f.animate([{transform:'translateY(-20px)',opacity:0},{transform:'translateY(0)',opacity:1}],{duration:700,fill:'both',easing:'ease-out'})
+      }
+      addLog(`The tree trembles and ${count} fruit(s) fall.`);
+      increaseJealousy(3); // presence of fruits also stirs Dung Dung's jealousy
+      save();
+    }
+
+    function collectFruit(domFruit){
+      // remove and give player fruit
+      domFruit.remove();
+      state.fruits += 1;
+      addLog('Dinh Thi Phuong Anh collects a fruit — memory preserved, longevity chance increases.');
+      // collecting calms jealousy mildly
+      decreaseJealousy(6);
+      renderUI(); save();
+
+      // small popup
+      const pop = document.createElement('div'); pop.textContent = '+1 fruit'; pop.style.position='fixed';pop.style.left='50%';pop.style.top='60%';pop.style.transform='translateX(-50%)';pop.style.background='rgba(0,0,0,0.6)';pop.style.padding='8px 12px';pop.style.borderRadius='10px';document.body.appendChild(pop);
+      setTimeout(()=>pop.remove(),1100);
+    }
+
+    // Music controls
+    toggleMusicBtn.addEventListener('click',()=>{
+      if(state.musicPlaying){ pauseMusic(); } else { playMusic(); }
+    });
+    function playMusic(){
+      theme.play().catch(()=>{ addLog('Unable to autoplay music — user gesture required.'); });
+      state.musicPlaying=true; toggleMusicBtn.textContent='Pause Theme'; addLog('Theme started (Sword Art Online vibe).'); save();
+    }
+    function pauseMusic(){ theme.pause(); state.musicPlaying=false; toggleMusicBtn.textContent='Play Theme'; addLog('Theme paused.'); save(); }
+
+    // Calm Dung button
+    document.getElementById('calmDung').addEventListener('click',()=>{
+      decreaseJealousy(20); addLog('Someone comforts Dung Dung. Jealousy calmed.');
+    });
+
+    // Spawn fruit button
+    document.getElementById('spawnFruit').addEventListener('click',()=>{ spawnFruit(); });
+
+    // Reset
+    document.getElementById('reset').addEventListener('click',()=>{
+      if(confirm('Reset the scene and clear saved state?')){
+        localStorage.removeItem('thousandTreeState'); location.reload();
+      }
+    });
+
+    // UI rendering
+    function renderUI(){
+      const pct = Math.min(100,Math.round(state.jealousy));
+      jealousMeter.style.width = pct+'%'; jealousVal.textContent = pct;
+      fruitCountEl.textContent = state.fruits;
+      renderLog();
+    }
+
+    // Persistence
+    function save(){ localStorage.setItem('thousandTreeState', JSON.stringify(state)); }
+    function load(){
+      const s = localStorage.getItem('thousandTreeState'); if(s){
+        try{ const parsed = JSON.parse(s); Object.assign(state, parsed); }
+        catch(e){ console.warn('load failed',e);} }
+    }
+
+    // small ambient animations: floating leaves
+    function createLeaf(){
+      const l = document.createElement('div'); l.textContent='🍃'; l.style.position='absolute';
+      const left = Math.random()*640+60; l.style.left = left+'px'; l.style.top = '-40px'; l.style.fontSize='24px'; l.style.opacity='0.9';
+      treeWrap.appendChild(l);
+      const dur = 7000 + Math.random()*6000;
+      l.animate([{transform:'translateY(0) rotate(0deg)'},{transform:'translateY(560px) rotate(360deg)'}],{duration:dur,fill:'forwards'});
+      setTimeout(()=>l.remove(),dur+200);
+    }
+    setInterval(createLeaf,1800);
+
+    // initial setup
+    renderStudents(); load(); renderUI();
+
+    // restore music state
+    if(state.musicPlaying){ playMusic(); }
+
+    // small tutorial log
+    addLog('Nguyen Tien Duc retired to FPT Smart Cloud — invites favorite students to read the Bible. The giant tree will stand for 1,000 years.');
+    addLog('Dinh Thi Phuong Anh dances under the tree collecting fruits to preserve memory and prolong life.');
+
+    // keyboard shortcuts
+    window.addEventListener('keydown',e=>{
+      if(e.key==='f'){ spawnFruit(); }
+      if(e.key==='m'){ if(state.musicPlaying) pauseMusic(); else playMusic(); }
+      if(e.key==='c'){ decreaseJealousy(10); addLog('Comfort action via shortcut.'); }
+    });
+
+    // Save state periodically
+    setInterval(save,3000);
+
+  </script>
+</body>
+</html>

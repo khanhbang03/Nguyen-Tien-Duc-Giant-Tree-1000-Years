@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Nguyen Tien Duc — Giant Tree 1000 Years</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to top, #0d1b2a, #1b263b, #415a77);
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+    }
+    h1 {
+      text-align: center;
+      margin: 10px;
+      color: #f4d35e;
+      text-shadow: 0 0 10px #f4d35e;
+    }
+    #scene {
+      position: relative;
+      width: 100%;
+      height: 70vh;
+      overflow: hidden;
+      border-bottom: 3px solid #f4d35e;
+    }
+    .character {
+      position: absolute;
+      padding: 5px 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(4px);
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.2s;
+    }
+    .npc-dialogue {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.6);
+      padding: 10px;
+      border-radius: 8px;
+      max-width: 300px;
+      font-size: 14px;
+    }
+    .leaf {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: green;
+      border-radius: 50%;
+      opacity: 0.8;
+    }
+    #controls {
+      padding: 10px;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+    button {
+      padding: 5px 10px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      background: #f4d35e;
+      font-weight: bold;
+    }
+    #mapHUD {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      width: 200px;
+      height: 200px;
+      background: rgba(0,0,0,0.5);
+      border: 2px solid #f4d35e;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .map-icon {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      cursor: grab;
+    }
+    .duc-icon { background: #4CAF50; }
+    .pa-icon { background: #FF69B4; }
+    .dung-icon { background: #FF4500; }
+  </style>
+</head>
+<body>
+  <h1>Nguyen Tien Duc’s 1000-Year Journey</h1>
+  <div id="scene">
+    <div id="duc" class="character" style="left:50px; top:50px;">Nguyen Tien Duc (Bible Reading)</div>
+    <div id="pa" class="character" style="left:200px; top:150px;">Phuong Anh (Dancing)</div>
+    <div id="dung" class="character" style="left:350px; top:100px;">Dung Dung (Jealous)</div>
+    <div class="npc-dialogue" id="dialogue">The giant tree hums with life. Duc reads, Phuong Anh dances, Dung Dung watches...</div>
+    <div id="mapHUD">
+      <div id="mapDuc" class="map-icon duc-icon" style="left:20px; top:20px;"></div>
+      <div id="mapPA" class="map-icon pa-icon" style="left:80px; top:100px;"></div>
+      <div id="mapDung" class="map-icon dung-icon" style="left:140px; top:60px;"></div>
+    </div>
+  </div>
+  <div id="controls">
+    <button onclick="collectFruit()">Collect Fruit</button>
+    <button onclick="increaseJealousy()">Increase Jealousy</button>
+    <button onclick="saveGame()">Save</button>
+    <button onclick="loadGame()">Load</button>
+    <span id="stats">Fruits: 0 | Jealousy: 0</span>
+  </div>
+  <audio id="bgm" autoplay loop>
+    <source src="https://files.catbox.moe/l8s4tx.mp3" type="audio/mpeg" />
+  </audio>
+  <script>
+    let fruits = 0;
+    let jealousy = 0;
+
+    function updateStats() {
+      document.getElementById('stats').innerText = `Fruits: ${fruits} | Jealousy: ${jealousy}`;
+      let dialogue = document.getElementById('dialogue');
+      if (jealousy > 10 && jealousy <= 20) {
+        dialogue.innerText = "Dung Dung is angry and blaming students!";
+      } else if (jealousy > 20) {
+        dialogue.innerText = "Dung Dung is exhausted and sleeps until the next day...";
+        jealousy = 0;
+      }
+    }
+
+    function collectFruit() {
+      fruits++;
+      updateStats();
+    }
+
+    function increaseJealousy() {
+      jealousy++;
+      updateStats();
+    }
+
+    function saveGame() {
+      localStorage.setItem('fruits', fruits);
+      localStorage.setItem('jealousy', jealousy);
+      alert('Game saved!');
+    }
+
+    function loadGame() {
+      fruits = parseInt(localStorage.getItem('fruits')) || 0;
+      jealousy = parseInt(localStorage.getItem('jealousy')) || 0;
+      updateStats();
+      alert('Game loaded!');
+    }
+
+    // Falling leaves effect
+    function createLeaf() {
+      const leaf = document.createElement('div');
+      leaf.classList.add('leaf');
+      leaf.style.left = Math.random() * window.innerWidth + 'px';
+      document.getElementById('scene').appendChild(leaf);
+      let fall = setInterval(() => {
+        let top = parseFloat(leaf.style.top || 0);
+        leaf.style.top = top + 2 + 'px';
+        if (top > window.innerHeight) {
+          leaf.remove();
+          clearInterval(fall);
+        }
+      }, 50);
+    }
+    setInterval(createLeaf, 1000);
+
+    // Map dragging + sync with scene
+    function makeDraggable(mapIcon, charElement) {
+      let isDragging = false;
+      mapIcon.addEventListener('mousedown', (e) => {
+        isDragging = true;
+      });
+      window.addEventListener('mouseup', () => { isDragging = false; });
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const rect = document.getElementById('mapHUD').getBoundingClientRect();
+        let x = e.clientX - rect.left - mapIcon.offsetWidth / 2;
+        let y = e.clientY - rect.top - mapIcon.offsetHeight / 2;
+        x = Math.max(0, Math.min(rect.width - mapIcon.offsetWidth, x));
+        y = Math.max(0, Math.min(rect.height - mapIcon.offsetHeight, y));
+        mapIcon.style.left = x + 'px';
+        mapIcon.style.top = y + 'px';
+
+        // Sync to scene (scale positions)
+        let scaleX = window.innerWidth / rect.width;
+        let scaleY = (window.innerHeight * 0.7) / rect.height;
+        charElement.style.left = (x * scaleX) + 'px';
+        charElement.style.top = (y * scaleY) + 'px';
+      });
+    }
+
+    makeDraggable(document.getElementById('mapDuc'), document.getElementById('duc'));
+    makeDraggable(document.getElementById('mapPA'), document.getElementById('pa'));
+    makeDraggable(document.getElementById('mapDung'), document.getElementById('dung'));
+  </script>
+</body>
+</html>
